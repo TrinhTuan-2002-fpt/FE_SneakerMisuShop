@@ -1,0 +1,190 @@
+<div class="content">
+    <div class="panel-header bg-primary-gradient">
+        <div class="page-inner py-5">
+            <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                <div>
+                    <h2 class="text-white pb-2 fw-bold">Mã giảm giá</h2>
+                    <h5 class="text-white op-7 mb-2">Trang chủ/Admin/Mã giảm giá</h5>
+                </div>
+                <div class="ml-md-auto py-2 py-md-0">
+                    <a href="javascript:void(0)" class="btn btn-secondary btn-round"
+                    (click)="showAddModal(null)">Thêm mới</a>
+                    <a href="javascript:void(0)" class="btn btn-primary btn-round" (click)="search()"><i
+                            class="fa fa-search" aria-hidden="true"></i>
+                        Tìm kiếm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-inner mt--5">
+        <div class="row mt--2">
+            <div class="col-md-12">
+                <div class="card full-height">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <nz-form-item class="col-md-3">
+                                        <label>Mã giảm giá</label>
+                                        <input nz-input placeholder="Nhập" [(ngModel)]="code" />
+                                    </nz-form-item>
+                                    <nz-form-item class="col-md-3">
+                                        <label>Ngày bắt đầu</label>
+                                        <nz-date-picker style="width: 100%" [(ngModel)]="effectiveDate"
+                                            placeholder="Chọn ngày"></nz-date-picker>
+                                    </nz-form-item>
+                                    <nz-form-item class="col-md-3">
+                                        <label>Ngày kết thúc</label>
+                                        <nz-date-picker style="width: 100%" [(ngModel)]="expiredDate"
+                                            placeholder="Chọn ngày"></nz-date-picker>
+                                    </nz-form-item>
+                                    <div class="col-md-3" style="float: right; margin-top: 20px;">
+                                        <input type="text" class="form-control" style="float: right; margin-bottom: 10px;"
+                                            placeholder="Tìm kiếm nhanh..." [(ngModel)]="searchString"
+                                            [ngModelOptions]="{standalone: true}">
+                                    </div>
+                                </div>
+                                <div class="table-responsive table-hover table-sales">
+                                   
+                                    <nz-table #basicTable [nzData]="listVoucher">
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Mã</th>
+                                                <th>Giảm giá</th>
+                                                <th>Giá trị</th>
+                                                <th>Số lượng</th>
+                                                <th>Số tiền tối thiểu</th>
+                                                <th>Ngày tạo</th>
+                                                <th>Ngày bắt đầu</th>
+                                                <th>Ngày kết thúc</th>
+                                                <th>Trạng thái</th>
+                                                <th>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let data of basicTable.data | filter:searchString ; let i = index">
+                                                <td>{{ i + 1 }}</td>
+                                                <td>{{ data.code }}</td>
+                                                <td>{{ data.percentPrice | number }}</td>
+                                            
+                                                <td>{{ data.value == 1 ? '%' : "VND" }}</td>
+                                                <td>{{ data.quantity | number }}</td>
+                                                <td>{{ data.minimumAmount | number }}</td>
+                                                <td>{{ data.creationTime | date: 'dd/MM/yyy' }}</td>
+                                                <td>{{ data.effectiveDate | date: 'dd/MM/yyy' }}</td>
+                                                <td>{{ data.expiredDate | date: 'dd/MM/yyy' }}</td>
+                                                <td
+                                                [style]="data.status == 1 ? 'font-weight: bold; color: green' : 'font-weight: bold;color:red'">
+                                                {{data.status == 1 ? 'Hoạt động' : 'Hết hạn'}}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-danger" placement="left"
+                                                        style="margin-right: 0.5rem;" nzType="dashed"
+                                                        (click)="showConfirm(data.id)">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning" placement="left"
+                                                        style="margin-right: 0.1rem;" (click)="showAddModal(data)" *ngIf="data.status == 1">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </nz-table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nz-modal [(nzVisible)]="isDisplay" [nzTitle]="titleModal" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+    <ng-container *nzModalContent>
+        <form class="form-horizontal" [formGroup]="AddForm">
+            <div class="row">
+                <div class="col-md-12">
+                    <nz-form-item class="row">
+                        <label>Mã giảm giá</label>
+                        <nz-form-control nzErrorTip="Không được để trống" nzHasFeedback>
+                            <input nz-input formControlName="code" placeholder="nhập..." readonly>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+              
+                <nz-form-item class="col-md-12">
+                    <label>Giá trị</label>
+                    <nz-select style="width: 100%" nzErrorTip="Không được để trống" nzShowSearch nzAllowClear nzPlaceHolder="Chọn" formControlName="value">
+                        <nz-option nzLabel="%" [nzValue]="1"></nz-option>
+                        <nz-option nzLabel="VND" [nzValue]="0"></nz-option>
+                    </nz-select>
+                    <div style="color: rgb(236, 85, 85); font-size: 14px;" *ngIf="AddForm.value.value == null">Không được để trống</div>
+                </nz-form-item>
+
+                <div class="col-md-12" *ngIf="AddForm.value.value == 0">
+                    <nz-form-item class="row">
+                        <label>Giảm giá</label>
+                        <nz-form-control nzErrorTip="Không được để trống" nzHasFeedback>
+                            <nz-input-group nzAddOnAfter="VND" placeholder="nhập...">
+                                <input nz-input formControlName="percentPrice" type="number" placeholder="nhập...">
+                            </nz-input-group>
+                           
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div class="col-md-12" *ngIf="AddForm.value.value == 1">
+                    <nz-form-item class="row">
+                        <label>Giảm giá</label>
+                        <nz-form-control nzErrorTip="Không được để trống" nzHasFeedback>
+                            <nz-input-group nzAddOnAfter="%" placeholder="nhập...">
+                                <input type="number" nz-input formControlName="percentPrice" min="1" max="100"/>
+                            </nz-input-group>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+
+                <div class="col-md-12">
+                    <nz-form-item class="row">
+                        <label>Số lượng</label>
+                        <nz-form-control nzErrorTip="Không được để trống" nzHasFeedback>
+                            <input nz-input formControlName="quantity" type="number" placeholder="nhập...">
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+
+                <div class="col-md-12">
+                    <nz-form-item class="row">
+                        <label>Số tiền tối thiểu</label>
+                        <nz-form-control nzErrorTip="Không được để trống" nzHasFeedback>
+                            <input nz-input formControlName="minimumAmount" type="number" placeholder="nhập...">
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+
+                <div class="col-md-6">
+                    <nz-form-item>
+                        <label>Ngày bắt đầu</label>
+                        <nz-form-control nzErrorTip="Không được để trống" nzHasFeedback>
+                            <nz-date-picker style="width: 100%" formControlName="effectiveDate"></nz-date-picker>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div class="col-md-6">
+                    <nz-form-item>
+                        <label>Ngày kết thúc</label>
+                        <nz-form-control nzErrorTip="Không được để trống" nzHasFeedback>
+                            <nz-date-picker style="width: 100%" formControlName="expiredDate"></nz-date-picker>
+                        </nz-form-control>
+                    </nz-form-item>
+                </div>
+                <div *ngIf="AddForm.hasError('dateRangeInvalid', ['effectiveDate', 'expiredDate'])">
+                    Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc.
+                  </div>
+              
+            </div>
+        </form>
+    </ng-container>
+</nz-modal>
